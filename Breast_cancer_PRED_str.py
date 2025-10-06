@@ -1,0 +1,69 @@
+import numpy as np
+import pandas as pd
+import sklearn.datasets
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+dataset = sklearn.datasets.load_breast_cancer()
+dataframe = pd.DataFrame(dataset.data, columns= dataset.feature_names)
+
+# print(dataframe.head())
+
+dataframe['label'] = dataset.target
+
+# print(dataframe.tail())
+
+# print(dataframe.isnull().sum())
+
+# print(dataframe['label'].value_counts())
+
+X = dataframe.drop(columns=['label'], axis=1)
+Y = dataframe['label']
+
+# print(X)
+# print(Y)
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=3)
+
+# print(X.shape, X_train.shape, X_test.shape)
+model = LogisticRegression()
+model.fit(X_train, Y_train)
+
+X_train_Prediction = model.predict(X_train)
+training_data_Accuracy = accuracy_score(Y_train, X_train_Prediction)
+# print("Training data Accuracy : ", training_data_Accuracy)
+
+X_test_Prediction = model.predict(X_test)
+testing_data_Accuracy = accuracy_score(Y_test, X_test_Prediction)
+# print("Testing data Accuracy : ", testing_data_Accuracy)
+
+
+
+import pickle
+
+filename = 'cancer_disease_model.sav'
+pickle.dump(model, open(filename, 'wb'))
+     
+# loading the saved model
+loaded_model = pickle.load(open('cancer_disease_model.sav', 'rb'))
+
+
+
+input_data = (13.54,14.36,87.46,566.3,0.09779,0.08129,0.06664,0.04781,0.1885,0.05766,0.2699,0.7886,2.058,23.56,0.008462,0.0146,0.02387,0.01315,0.0198,0.0023,15.11,19.26,99.7,711.2,0.144,0.1773,0.239,0.1288,0.2977,0.07259)
+
+# change the input data to a numpy array
+input_data_as_numpy_array = np.asarray(input_data)
+
+# reshape the numpy array as we are predicting for one datapoint
+input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+
+prediction = model.predict(input_data_reshaped)
+print(prediction)
+
+if (prediction[0] == 0):
+  print('The Breast cancer is Malignant')
+
+else:
+  print('The Breast Cancer is Benign')
+
